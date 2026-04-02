@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiny Dino Pixel Genesis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        :root { --neon-green: #00ff66; --bright-yellow: #ccff00; --dark-void: #050505; }
+        
+        body { 
+            margin: 0; 
+            background-color: var(--bright-yellow); 
+            font-family: 'VT323', monospace; 
+            color: var(--dark-void);
+            overflow-x: hidden;
+        }
+
+        /* ইউনিক ব্যাকগ্রাউন্ড */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, var(--bright-yellow) 25%, transparent 25%) -50px 0,
+                        linear-gradient(225deg, var(--bright-yellow) 25%, transparent 25%) -50px 0;
+            background-size: 100px 100px;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .main-frame {
+            max-width: 800px;
+            margin: 40px auto;
+            border: 8px solid var(--dark-void);
+            background: #fff;
+            position: relative;
+            box-shadow: 20px 20px 0px var(--dark-void);
+        }
+
+        .header-box { background: var(--dark-void); color: var(--bright-yellow); padding: 20px; text-align: center; }
+
+        .dino-display { padding: 40px; background: #fff; border-bottom: 6px dashed var(--dark-void); text-align: center; }
+
+        .main-img {
+            width: 250px;
+            height: 250px;
+            image-rendering: pixelated;
+            border: 6px solid var(--dark-void);
+            padding: 10px;
+            background: var(--bright-yellow);
+            transform: rotate(-2deg);
+            max-width: 100%;
+        }
+
+        .interface-grid { display: grid; grid-template-columns: 1fr 1fr; padding: 20px; gap: 20px; background: #f0f0f0; }
+
+        .pixel-card { border: 4px solid var(--dark-void); padding: 20px; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+        .action-btn {
+            width: 100%; padding: 20px; font-family: 'Press Start 2P', cursive; font-size: 12px; cursor: pointer;
+            border: 4px solid var(--dark-void); box-shadow: 4px 4px 0px var(--dark-void); text-decoration: none; text-align: center; color: var(--dark-void);
+        }
+
+        .btn-apply { background: var(--neon-green); }
+        .btn-mint { background: var(--bright-yellow); }
+        .action-btn:active { transform: translate(4px, 4px); box-shadow: 0px 0px 0px; }
+
+        .timer-red { margin-top: 10px; background: var(--dark-void); color: #ff3e3e; padding: 5px 10px; font-size: 14px; letter-spacing: 2px; }
+
+        .pixel-gallery { display: flex; overflow-x: auto; gap: 15px; padding: 20px; background: var(--dark-void); }
+        .pixel-gallery img { width: 120px; height: 120px; border: 3px solid var(--bright-yellow); flex-shrink: 0; image-rendering: pixelated; }
+
+        .roadmap-section { padding: 40px; text-align: left; }
+        .roadmap-entry { border-left: 4px solid var(--dark-void); padding-left: 20px; margin-bottom: 30px; position: relative; }
+        .roadmap-entry::before { content: ""; position: absolute; left: -12px; top: 0; width: 20px; height: 20px; background: var(--neon-green); border: 4px solid var(--dark-void); }
+
+        /* মডাল ও ইনপুট */
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; border: 6px solid var(--dark-void); padding: 30px; width: 90%; max-width: 450px; z-index: 1001; }
+        .task-row { background: #f9f9f9; border: 2px solid var(--dark-void); padding: 15px; margin-bottom: 10px; cursor: pointer; font-weight: bold; display: flex; justify-content: space-between; font-size: 14px; }
+        .task-row.done { background: var(--neon-green); text-decoration: line-through; }
+        
+        input { width: 100%; padding: 15px; margin: 10px 0; border: 3px solid var(--dark-void); font-family: 'VT323'; font-size: 1.2rem; box-sizing: border-box; }
+
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
+
+        @media (max-width: 600px) {
+            .interface-grid { grid-template-columns: 1fr; }
+            .main-frame { margin: 10px; }
+            .main-img { width: 180px; height: 180px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="overlay"></div>
+
+<div class="main-frame">
+    <div class="header-box">
+        <h1 class="pixel-font" style="margin:0; font-size: 1.2rem;">TINY DINO PIXEL</h1>
+    </div>
+
+    <div class="dino-display">
+        <img src="https://i.ibb.co.com/vvgYfCvP/Image20260402.png" class="main-img">
+        <h2 class="pixel-font" style="font-size: 12px; margin-top: 20px;">GENESIS COLLECTION</h2>
+        <p style="font-size: 1.4rem;">1,111 Primitive Pixel Dinos ready to evolve on Base Chain.</p>
+    </div>
+
+    <div class="interface-grid">
+        <div class="pixel-card">
+            <button class="action-btn btn-apply" onclick="openTasks()">GTD & WL APPLY</button>
+            <div class="timer-red pixel-font" id="countdown">24:00:00</div>
+        </div>
+        <div class="pixel-card">
+            <a href="https://opensea.io/collection/dinopixelchain/overview" target="_blank" class="action-btn btn-mint">MINT PAGE</a>
+            <p style="font-weight: bold; margin-top: 10px;">Network: BASE</p>
+        </div>
+    </div>
+
+    <div class="pixel-gallery">
+        <img src="https://i.ibb.co.com/7t08k08y/file-00000000c47071fa9bddd94082e4c6a8.png">
+        <img src="https://i.ibb.co.com/kVQ35LhD/file-00000000310c71fa826a41523aa058b5.png">
+        <img src="https://i.ibb.co.com/fdSGWrSd/file-00000000d97071faa1b99f9bfbd6b7c4.png">
+        <img src="https://i.ibb.co.com/hRBTDyfZ/file-0000000093e471fa8fa89a055c40998c.png">
+    </div>
+
+    <div class="roadmap-section">
+        <h3 class="pixel-font" style="border-bottom: 4px solid var(--neon-green); display: inline-block; font-size: 14px;">ROADMAP 1.0</h3>
+        <div class="roadmap-entry" style="margin-top:20px;">
+            <b class="pixel-font" style="font-size: 10px;">Stage: Hatching</b>
+            <p>Launch of 1,111 Dinos on Base. Establishing the foundation.</p>
+        </div>
+        <div class="roadmap-entry">
+            <b class="pixel-font" style="font-size: 10px;">Stage: Pixel Game</b>
+            <p>Your NFT becomes a playable character in our 2D adventure game.</p>
+        </div>
+    </div>
+</div>
+
+<div id="taskModal" class="modal">
+    <div id="step1">
+        <h3 class="pixel-font" style="font-size: 11px;">MANDATORY MISSIONS</h3>
+        <div class="task-row" onclick="completeTask(this, 'https://x.com/dinopixelchain')">1. FOLLOW @DINOPIXELCHAIN <span>→</span></div>
+        <div class="task-row" onclick="completeTask(this, 'https://x.com/i/status/2039588474052121013')">2. LIKE PINNED POST <span>→</span></div>
+        <div class="task-row" onclick="completeTask(this, 'https://x.com/i/status/2039588474052121013')">3. RETWEET POST <span>→</span></div>
+        <div class="task-row" onclick="completeTask(this, 'https://x.com/i/status/2039588474052121013')">4. COMMENT POST <span>→</span></div>
+        <button class="action-btn btn-apply" style="width:100%;" onclick="toSubmission()">VERIFY & NEXT</button>
+    </div>
+
+    <div id="step2" style="display:none;">
+        <h3 class="pixel-font" style="font-size: 11px;">IDENTITY SUBMISSION</h3>
+        <form id="googleForm">
+            <input type="text" name="x_user" placeholder="X Username (@...)" required>
+            <input type="text" name="comment_link" placeholder="Comment Link" required>
+            <input type="text" name="wallet" placeholder="EVM Wallet Address (0x...)" required>
+            <button type="submit" class="action-btn btn-mint" style="width:100%; margin-top:10px;">SUBMIT TO SHEETS</button>
+        </form>
+    </div>
+
+    <div id="step3" style="display:none; text-align: center;">
+        <h2 class="pixel-font" style="color: var(--neon-green); font-size: 14px;">SUCCESS</h2>
+        <p>Application Received!</p>
+        <button class="action-btn" onclick="location.reload()">FINISH</button>
+    </div>
+</div>
+
+<script>
+    // টাইমার (LocalStorage)
+    const COUNTDOWN_TIME = 24 * 60 * 60 * 1000;
+    let startTime = localStorage.getItem('dinoStartTimeV2');
+    if (!startTime) { startTime = new Date().getTime(); localStorage.setItem('dinoStartTimeV2', startTime); }
+
+    function updateTimer() {
+        const now = new Date().getTime();
+        const distance = (parseInt(startTime) + COUNTDOWN_TIME) - now;
+        const el = document.getElementById('countdown');
+        if (distance < 0) { el.innerText = "EXPIRED"; return; }
+        const h = Math.floor((distance / (1000 * 60 * 60)));
+        const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((distance % (1000 * 60)) / 1000);
+        el.innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    }
+    setInterval(updateTimer, 1000);
+
+    // টাস্ক কন্ট্রোল
+    let doneCount = 0;
+    function openTasks() { document.getElementById('taskModal').style.display='block'; document.getElementById('overlay').style.display='block'; }
+    function completeTask(el, url) { window.open(url, '_blank'); if(!el.classList.contains('done')) { el.classList.add('done'); doneCount++; } }
+    function toSubmission() { if(doneCount >= 4) { document.getElementById('step1').style.display='none'; document.getElementById('step2').style.display='block'; } else alert("Complete all tasks!"); }
+
+    // গুগল শিট কানেকশন
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyfaFG_vSyPkDogyEUglc_yuWoswI3JNTFmkidb97Cd-L0396goXKCsI-idTEsfc8xP/exec'; // আপনার স্ক্রিপ্ট লিঙ্ক এখানে বসান
+    const form = document.getElementById('googleForm');
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        const btn = form.querySelector('button');
+        btn.innerText = "SENDING..."; btn.disabled = true;
+        fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+            .then(() => { document.getElementById('step2').style.display='none'; document.getElementById('step3').style.display='block'; })
+            .catch(() => { btn.innerText = "SUBMIT TO SHEETS"; btn.disabled = false; alert("Error! Check Script URL."); });
+    });
+</script>
+</body>
+</html>
