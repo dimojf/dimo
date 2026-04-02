@@ -126,7 +126,7 @@
     function completeTask(el, url) { window.open(url, '_blank'); if(!el.classList.contains('done')) { el.classList.add('done'); doneCount++; } }
     function toSubmission() { if(doneCount >= 4) { document.getElementById('step1').style.display='none'; document.getElementById('step2').style.display='block'; } else alert("Complete all missions first!"); }
 
-    const scriptURL = 'https://script.google.com/macros/s/AKfycby0tkFdGl_S0DNtHumo9iFOom80odvCp9aaSwBDeFxNQ5gaIiBKlRc3INcsDIvIn1aG6w/exec'; 
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwyHusBHdzPwQSMwFqSVm7u139L0XZyKol-TQ5U5d-xbKHfz_oE-dPR7f5E6bJVJBImcg/exec'; 
     const form = document.getElementById('googleForm');
 
     form.addEventListener('submit', e => {
