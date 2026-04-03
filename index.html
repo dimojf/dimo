@@ -6,140 +6,220 @@
     <title>Tiny Dino Pixel Genesis</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
     <style>
-        :root { --neon-green: #00ff66; --bright-yellow: #ccff00; --dark-void: #050505; }
+        :root { --neon-green: #00ff66; --bright-yellow: #ccff00; --dark-void: #050505; --sky-blue: #87CEEB; }
         body { margin: 0; background-color: var(--bright-yellow); font-family: 'VT323', monospace; color: var(--dark-void); overflow-x: hidden; }
         .main-frame { max-width: 800px; margin: 40px auto; border: 8px solid var(--dark-void); background: #fff; position: relative; box-shadow: 20px 20px 0px var(--dark-void); }
         .header-box { background: var(--dark-void); color: var(--bright-yellow); padding: 20px; text-align: center; }
         .dino-display { padding: 40px; background: #fff; border-bottom: 6px dashed var(--dark-void); text-align: center; }
         .main-img { width: 250px; height: 250px; image-rendering: pixelated; border: 6px solid var(--dark-void); padding: 10px; background: var(--bright-yellow); transform: rotate(-2deg); max-width: 100%; }
+        
+        .p2e-container { padding: 20px; text-align: center; }
+        .btn-p2e { background: #2775ca; color: white !important; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px; }
+        .usdc-icon { width: 24px; height: 24px; vertical-align: middle; }
+
         .interface-grid { display: grid; grid-template-columns: 1fr 1fr; padding: 20px; gap: 20px; background: #f0f0f0; }
         .pixel-card { border: 4px solid var(--dark-void); padding: 20px; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .action-btn { width: 100%; padding: 20px; font-family: 'Press Start 2P', cursive; font-size: 12px; cursor: pointer; border: 4px solid var(--dark-void); box-shadow: 4px 4px 0px var(--dark-void); text-decoration: none; text-align: center; color: var(--dark-void); transition: 0.1s; }
-        .btn-apply { background: var(--neon-green); }
+        .action-btn { width: 100%; padding: 20px; font-family: 'Press Start 2P', cursive; font-size: 10px; cursor: pointer; border: 4px solid var(--dark-void); box-shadow: 4px 4px 0px var(--dark-void); text-decoration: none; text-align: center; color: var(--dark-void); transition: 0.1s; display: block; box-sizing: border-box; }
+        .btn-apply { background: #ff3e3e; color: white; }
         .btn-mint { background: var(--bright-yellow); }
         .action-btn:active { transform: translate(4px, 4px); box-shadow: 0px 0px 0px; }
-        .timer-red { margin-top: 10px; background: var(--dark-void); color: #ff3e3e; padding: 5px 10px; font-size: 14px; letter-spacing: 2px; }
-        .pixel-gallery { display: flex; overflow-x: auto; gap: 15px; padding: 20px; background: var(--dark-void); }
-        .pixel-gallery img { width: 120px; height: 120px; border: 3px solid var(--bright-yellow); flex-shrink: 0; image-rendering: pixelated; }
+        .status-tag { margin-top: 10px; background: var(--dark-void); color: #ff3e3e; padding: 5px 10px; font-size: 14px; letter-spacing: 2px; }
 
-        /* রোডম্যাপ ফিক্স - আপনার স্ক্রিনশট অনুযায়ী */
+        /* Enhanced Game Display for Mobile & Desktop */
+        #gameContainer { display: none; padding: 10px; background: #000; text-align: center; width: 100%; box-sizing: border-box; }
+        #gameCanvas { background: var(--sky-blue); border: 4px solid #fff; width: 100%; max-width: 760px; height: auto; cursor: pointer; display: block; margin: 0 auto; }
+        
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; border: 6px solid var(--dark-void); padding: 30px; width: 90%; max-width: 450px; z-index: 1001; text-align: center; }
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
+
         .roadmap-section { padding: 40px; text-align: left; background: #fff; }
         .roadmap-entry { border-left: 4px solid var(--dark-void); padding-left: 20px; margin-bottom: 30px; position: relative; }
         .roadmap-entry::before { content: ""; position: absolute; left: -12px; top: 0; width: 20px; height: 20px; background: var(--neon-green); border: 4px solid var(--dark-void); }
-        .roadmap-entry h4 { margin: 0; color: var(--dark-void); font-size: 1.2rem; }
-        .roadmap-entry p { margin: 5px 0 0; color: #444; font-size: 1.2rem; line-height: 1.2; }
-
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; border: 6px solid var(--dark-void); padding: 30px; width: 90%; max-width: 450px; z-index: 1001; }
-        .task-row { background: #f9f9f9; border: 2px solid var(--dark-void); padding: 15px; margin-bottom: 10px; cursor: pointer; font-weight: bold; display: flex; justify-content: space-between; font-size: 14px; }
-        .task-row.done { background: var(--neon-green); text-decoration: line-through; }
-        input { width: 100%; padding: 15px; margin: 10px 0; border: 3px solid var(--dark-void); font-family: 'VT323'; font-size: 1.2rem; box-sizing: border-box; }
-        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
+        .pixel-gallery { display: flex; overflow-x: auto; gap: 15px; padding: 20px; background: var(--dark-void); }
+        .pixel-gallery img { width: 120px; height: 120px; border: 3px solid var(--bright-yellow); flex-shrink: 0; image-rendering: pixelated; }
 
         @media (max-width: 600px) { .interface-grid { grid-template-columns: 1fr; } .main-frame { margin: 10px; } }
     </style>
 </head>
 <body>
-<div id="overlay"></div>
+
+<div id="overlay" onclick="closeAll()"></div>
+
 <div class="main-frame">
-    <div class="header-box"><h1 class="pixel-font" style="margin:0; font-size: 1.2rem;">TINY DINO PIXEL</h1></div>
+    <div class="header-box"><h1 style="margin:0; font-size: 1.2rem;">TINY DINO PIXEL</h1></div>
+    
     <div class="dino-display">
         <img src="https://i.ibb.co.com/vvgYfCvP/Image20260402.png" class="main-img">
-        <h2 class="pixel-font" style="font-size: 12px; margin-top: 20px;">GENESIS COLLECTION</h2>
+        <h2 style="font-size: 12px; margin-top: 20px;">GENESIS COLLECTION</h2>
+        
+        <div class="p2e-container">
+            <button class="action-btn btn-p2e" onclick="openP2EMenu()">
+                PLAY TO EARN <img src="https://cryptologos.cc/logos/usd-coin-usdc-logo.png" class="usdc-icon"> USDC
+            </button>
+        </div>
+
         <p style="font-size: 1.4rem;">1,111 Primitive Pixel Dinos ready to evolve on Base Chain.</p>
     </div>
+
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="800" height="300"></canvas>
+        <p style="color: #fff; font-family: 'Press Start 2P'; font-size: 10px; margin-top: 10px;">TAP OR PRESS SPACE TO JUMP</p>
+    </div>
+
     <div class="interface-grid">
         <div class="pixel-card">
-            <button class="action-btn btn-apply" onclick="openTasks()">GTD & WL APPLY</button>
-            <div class="timer-red pixel-font" id="countdown">24:00:00</div>
+            <button class="action-btn btn-apply" onclick="openNotice()">GTD & WL STATUS</button>
+            <div class="status-tag">CLOSE</div>
         </div>
         <div class="pixel-card">
             <a href="https://opensea.io/collection/dinopixelchain/overview" target="_blank" class="action-btn btn-mint">MINT PAGE</a>
             <p style="font-weight: bold; margin-top: 10px;">Network: BASE</p>
         </div>
     </div>
+
     <div class="pixel-gallery">
         <img src="https://i.ibb.co.com/7t08k08y/file-00000000c47071fa9bddd94082e4c6a8.png">
         <img src="https://i.ibb.co.com/kVQ35LhD/file-00000000310c71fa826a41523aa058b5.png">
         <img src="https://i.ibb.co.com/fdSGWrSd/file-00000000d97071faa1b99f9bfbd6b7c4.png">
         <img src="https://i.ibb.co.com/hRBTDyfZ/file-0000000093e471fa8fa89a055c40998c.png">
     </div>
+
     <div class="roadmap-section">
-        <h3 class="pixel-font" style="border-bottom: 4px solid var(--neon-green); display: inline-block; font-size: 14px; margin-bottom: 25px;">ROADMAP 1.0</h3>
+        <h3 style="border-bottom: 4px solid var(--neon-green); display: inline-block; font-size: 14px; margin-bottom: 25px;">ROADMAP 1.0</h3>
         <div class="roadmap-entry">
-            <h4 class="pixel-font" style="font-size: 10px;">STAGE 1: THE HATCHING</h4>
+            <h4>STAGE 1: THE HATCHING</h4>
             <p>Launch of 1,111 Primitive Dinos on Base Network. Establishing our prehistoric foundation.</p>
         </div>
         <div class="roadmap-entry">
-            <h4 class="pixel-font" style="font-size: 10px;">STAGE 2: EVOLUTION</h4>
-            <p>Staking for $PIXEL tokens and exclusive airdrops for our early dino holders.</p>
+            <h4>STAGE 2: EVOLUTION</h4>
+            <p>Staking for DINO PIXEL NFT and exclusive airdrops for our early dino holders.</p>
         </div>
         <div class="roadmap-entry">
-            <h4 class="pixel-font" style="font-size: 10px;">STAGE 3: DINO-VERSE GAME</h4>
+            <h4>STAGE 3: DINO-VERSE GAME</h4>
             <p>A 2D pixel adventure where your NFT becomes your unique playable character.</p>
         </div>
     </div>
 </div>
 
-<div id="taskModal" class="modal">
-    <div id="step1">
-        <h3 class="pixel-font" style="font-size: 11px;">MANDATORY MISSIONS</h3>
-        <div class="task-row" onclick="completeTask(this, 'https://x.com/intent/follow?screen_name=dinopixelchain')">1. FOLLOW @DINOPIXELCHAIN <span>→</span></div>
-        <div class="task-row" onclick="completeTask(this, 'https://x.com/intent/retweet?tweet_id=2039747998234857497')">2. REPOST PINNED POST <span>→</span></div>
-        <div class="task-row" onclick="completeTask(this, 'https://x.com/intent/post?text=%40dinopixelchain%20NFTs%0ASupply%3A%201111%0ANetwork%3A%20Base%0AMint%3A%203%20April%2C%2012%20UTC%0A%0AMint%20page%3A%20https%3A%2F%2Fopensea.io%2Fcollection%2Fdinopixelchain%2Foverview')">3. X DINO POST <span>→</span></div>
-        <div class="task-row" onclick="completeTask(this, 'https://x.com/i/status/2039747998234857497')">4. COMMENT YOUR EVM WALLET POST <span>→</span></div>
-        <button class="action-btn btn-apply" style="width:100%;" onclick="toSubmission()">VERIFY & NEXT</button>
-    </div>
-    <div id="step2" style="display:none;">
-        <h3 class="pixel-font" style="font-size: 11px;">IDENTITY SUBMISSION</h3>
-        <form id="googleForm">
-            <input type="text" name="x_user" placeholder="X Username (@...)" required>
-            <input type="text" name="comment_link" placeholder="Comment Link" required>
-            <input type="text" name="wallet" placeholder="EVM Wallet Address (0x...)" required>
-            <button type="submit" class="action-btn btn-mint" style="width:100%; margin-top:10px;">SUBMIT APPLICATION</button>
-        </form>
-    </div>
-    <div id="step3" style="display:none; text-align: center; padding: 10px;">
-        <h2 class="pixel-font" style="color: var(--neon-green); font-size: 16px; margin-bottom: 15px;">CONGRATULATIONS!</h2>
-        <p style="font-size: 1.3rem; line-height: 1.4; color: #333;">Your application for the **Tiny Dino Whitelist** has been successfully submitted! <br><br> We are processing your prehistoric data into our Jurassic Database.</p>
-        <button class="action-btn" style="margin-top:20px; background: var(--dark-void); color: #fff;" onclick="location.reload()">BACK TO HOME</button>
-    </div>
+<div id="noticeModal" class="modal">
+    <h2 style="color: #ff3e3e;">IMPORTANT</h2>
+    <p style="font-size: 1.2rem; font-weight: bold;">Follow us on X now! The first 100 members will be granted GTD ACCESS at any moment.</p>
+    <a href="https://x.com/dinopixelchain" target="_blank" class="action-btn" style="background:#000; color:#fff; margin-bottom:10px;">FOLLOW ON X</a>
+    <button class="action-btn" style="background:#eee;" onclick="closeAll()">CLOSE</button>
+</div>
+
+<div id="p2eMenu" class="modal">
+    <h2>DINO ECONOMY</h2>
+    <button class="action-btn btn-mint" style="margin-bottom:10px;" onclick="startDemo()">DEMO</button>
+    <button class="action-btn btn-p2e" onclick="showEarnInfo()">EARN USDC</button>
+    <button class="action-btn" style="margin-top:15px; background:#eee;" onclick="closeAll()">BACK</button>
+</div>
+
+<div id="earnInfo" class="modal">
+    <h2>EARN USDC</h2>
+    <p style="font-size: 1.1rem; text-align: left;">
+        You can earn USDC by staking your Dino NFTs. The more Dinos you stake, the more USDC you can earn. 
+        You can claim your earnings instantly to your wallet. 
+        <br><br>
+        This feature will start after the NFT Mint is completed. You can try the Demo now by clicking the back button.
+    </p>
+    <button class="action-btn btn-mint" onclick="openP2EMenu()">BACK TO DEMO</button>
+</div>
+
+<div id="gameOverModal" class="modal">
+    <h2>GAME OVER</h2>
+    <p id="finalScore" style="font-size: 1.5rem;"></p>
+    <button class="action-btn btn-apply" onclick="alert('This cannot be claimed because it is a Demo. To earn real USDC, click the EARN USDC button and stake your NFTs after mint.')">CLAIM USDC</button>
+    <button class="action-btn" style="margin-top:10px; background:#eee;" onclick="openP2EMenu()">BACK</button>
 </div>
 
 <script>
-    const COUNTDOWN_TIME = 24 * 60 * 60 * 1000;
-    let startTime = localStorage.getItem('dinoStartTimeV2');
-    if (!startTime) { startTime = new Date().getTime(); localStorage.setItem('dinoStartTimeV2', startTime); }
-    function updateTimer() {
-        const now = new Date().getTime();
-        const distance = (parseInt(startTime) + COUNTDOWN_TIME) - now;
-        const el = document.getElementById('countdown');
-        if (distance < 0) { el.innerText = "EXPIRED"; return; }
-        const h = Math.floor((distance / (1000 * 60 * 60)));
-        const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const s = Math.floor((distance % (1000 * 60)) / 1000);
-        el.innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const dinoImg = new Image(); dinoImg.src = "https://i.ibb.co.com/6S3KHKp/20260403-080411.png";
+    const usdcImg = new Image(); usdcImg.src = "https://cryptologos.cc/logos/usd-coin-usdc-logo.png";
+
+    let gameActive = false;
+    let score = 0;
+    let earnedUsdc = 0;
+    let gameFrame = 0;
+    let dino = { x: 50, y: 200, w: 60, h: 60, dy: 0, jump: -15, gravity: 0.8, grounded: false };
+    let obstacles = [];
+
+    function openNotice() { document.getElementById('noticeModal').style.display='block'; document.getElementById('overlay').style.display='block'; }
+    function openP2EMenu() { closeAll(); document.getElementById('p2eMenu').style.display='block'; document.getElementById('overlay').style.display='block'; }
+    function showEarnInfo() { closeAll(); document.getElementById('earnInfo').style.display='block'; document.getElementById('overlay').style.display='block'; }
+    
+    function closeAll() { 
+        document.querySelectorAll('.modal').forEach(m => m.style.display='none'); 
+        document.getElementById('overlay').style.display='none'; 
     }
-    setInterval(updateTimer, 1000);
 
-    let doneCount = 0;
-    function openTasks() { document.getElementById('taskModal').style.display='block'; document.getElementById('overlay').style.display='block'; }
-    function completeTask(el, url) { window.open(url, '_blank'); if(!el.classList.contains('done')) { el.classList.add('done'); doneCount++; } }
-    function toSubmission() { if(doneCount >= 4) { document.getElementById('step1').style.display='none'; document.getElementById('step2').style.display='block'; } else alert("Complete all missions first!"); }
+    function startDemo() {
+        closeAll();
+        document.getElementById('gameContainer').style.display = 'block';
+        gameActive = true;
+        score = 0;
+        earnedUsdc = 0;
+        obstacles = [];
+        dino.y = 200;
+        gameFrame = 0;
+        window.scrollTo(0, document.getElementById('gameContainer').offsetTop - 20);
+        requestAnimationFrame(gameLoop);
+    }
 
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwyHusBHdzPwQSMwFqSVm7u139L0XZyKol-TQ5U5d-xbKHfz_oE-dPR7f5E6bJVJBImcg/exec'; 
-    const form = document.getElementById('googleForm');
+    window.addEventListener('keydown', (e) => { if(e.code === 'Space' && dino.grounded) { dino.dy = dino.jump; dino.grounded = false; } });
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); if(dino.grounded) { dino.dy = dino.jump; dino.grounded = false; } });
 
-    form.addEventListener('submit', e => {
-        e.preventDefault();
-        // তৎক্ষণাৎ অভিনন্দন দেখানো (Instant Success)
-        document.getElementById('step2').style.display='none';
-        document.getElementById('step3').style.display='block';
+    function gameLoop() {
+        if(!gameActive) return;
+        ctx.clearRect(0,0, canvas.width, canvas.height);
+
+        // Sky & Ground
+        ctx.fillStyle = "#87CEEB"; ctx.fillRect(0,0, canvas.width, 260);
+        ctx.fillStyle = "#4CAF50"; ctx.fillRect(0, 260, canvas.width, 40);
+
+        // Dino Physics
+        dino.dy += dino.gravity;
+        dino.y += dino.dy;
+        if(dino.y > 200) { dino.y = 200; dino.dy = 0; dino.grounded = true; }
+        ctx.drawImage(dinoImg, dino.x, dino.y, dino.w, dino.h);
+
+        // Obstacles (Logic: 3 successful jumps/passes = 0.01 USDC)
+        if(gameFrame % 100 === 0) { obstacles.push({ x: canvas.width, y: 210, w: 45, h: 45 }); }
         
-        // ব্যাকগ্রাউন্ডে ডেটা পাঠানো (Fast Submission)
-        fetch(scriptURL, { method: 'POST', body: new FormData(form), mode: 'no-cors'})
-            .then(res => console.log('Data synced to sheets'))
-            .catch(err => console.error('Sheet Sync Error:', err));
-    });
+        obstacles.forEach((obs, index) => {
+            obs.x -= 7;
+            ctx.drawImage(usdcImg, obs.x, obs.y, obs.w, obs.h);
+            
+            // Precise Collision
+            if(dino.x < obs.x + obs.w - 15 && dino.x + dino.w - 15 > obs.x && dino.y < obs.y + obs.h - 15 && dino.y + dino.h - 15 > obs.y) {
+                endGame();
+            }
+            // Score Update
+            if(obs.x + obs.w < 0) { 
+                obstacles.splice(index, 1); 
+                score++; 
+                if(score % 3 === 0) { earnedUsdc += 0.01; } // 3 Jumps = 0.01 USDC
+            }
+        });
+
+        // UI Text
+        ctx.fillStyle = "#000";
+        ctx.font = "24px VT323";
+        ctx.fillText(`EARNED: $${earnedUsdc.toFixed(2)} USDC`, 20, 40);
+        ctx.fillText(`OBSTACLES PASSED: ${score}`, 20, 70);
+
+        gameFrame++;
+        requestAnimationFrame(gameLoop);
+    }
+
+    function endGame() {
+        gameActive = false;
+        document.getElementById('gameOverModal').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+        document.getElementById('finalScore').innerText = `Demo Result: $${earnedUsdc.toFixed(2)} USDC`;
+    }
 </script>
 </body>
 </html>
