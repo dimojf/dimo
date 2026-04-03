@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tiny Dino Pixel Genesis</title>
+    <title>Tiny Dino Pixel | Genesis</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
     <style>
         :root { --neon-green: #00ff66; --bright-yellow: #ccff00; --dark-void: #050505; --sky-blue: #87CEEB; }
@@ -25,9 +25,8 @@
         .action-btn:active { transform: translate(4px, 4px); box-shadow: 0px 0px 0px; }
         .status-tag { margin-top: 10px; background: var(--dark-void); color: #ff3e3e; padding: 5px 10px; font-size: 14px; letter-spacing: 2px; }
 
-        /* Enhanced Game Display for Mobile & Desktop */
         #gameContainer { display: none; padding: 10px; background: #000; text-align: center; width: 100%; box-sizing: border-box; }
-        #gameCanvas { background: var(--sky-blue); border: 4px solid #fff; width: 100%; max-width: 760px; height: auto; cursor: pointer; display: block; margin: 0 auto; }
+        #gameCanvas { background: var(--sky-blue); border: 4px solid #fff; width: 100%; max-width: 760px; height: auto; cursor: pointer; display: block; margin: 0 auto; touch-action: none; }
         
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; border: 6px solid var(--dark-void); padding: 30px; width: 90%; max-width: 450px; z-index: 1001; text-align: center; }
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
@@ -37,8 +36,6 @@
         .roadmap-entry::before { content: ""; position: absolute; left: -12px; top: 0; width: 20px; height: 20px; background: var(--neon-green); border: 4px solid var(--dark-void); }
         .pixel-gallery { display: flex; overflow-x: auto; gap: 15px; padding: 20px; background: var(--dark-void); }
         .pixel-gallery img { width: 120px; height: 120px; border: 3px solid var(--bright-yellow); flex-shrink: 0; image-rendering: pixelated; }
-
-        @media (max-width: 600px) { .interface-grid { grid-template-columns: 1fr; } .main-frame { margin: 10px; } }
     </style>
 </head>
 <body>
@@ -49,15 +46,14 @@
     <div class="header-box"><h1 style="margin:0; font-size: 1.2rem;">TINY DINO PIXEL</h1></div>
     
     <div class="dino-display">
-        <img src="https://i.ibb.co.com/vvgYfCvP/Image20260402.png" class="main-img">
+        <img src="https://i.ibb.co.com/vvgYfCvP/Image20260402.png" class="main-img" alt="NFT Display">
         <h2 style="font-size: 12px; margin-top: 20px;">GENESIS COLLECTION</h2>
         
         <div class="p2e-container">
             <button class="action-btn btn-p2e" onclick="openP2EMenu()">
-                PLAY TO EARN <img src="https://cryptologos.cc/logos/usd-coin-usdc-logo.png" class="usdc-icon"> USDC
+                PLAY TO EARN <img src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/32/color/usdc.png" class="usdc-icon"> USDC
             </button>
         </div>
-
         <p style="font-size: 1.4rem;">1,111 Primitive Pixel Dinos ready to evolve on Base Chain.</p>
     </div>
 
@@ -136,8 +132,15 @@
 <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    const dinoImg = new Image(); dinoImg.src = "https://i.ibb.co.com/6S3KHKp/20260403-080411.png";
-    const usdcImg = new Image(); usdcImg.src = "https://cryptologos.cc/logos/usd-coin-usdc-logo.png";
+    
+    // Image Loading with Error Handling
+    const dinoImg = new Image();
+    dinoImg.crossOrigin = "anonymous";
+    dinoImg.src = "https://i.ibb.co.com/6S3KHKp/20260403-080411.png";
+
+    const usdcImg = new Image();
+    usdcImg.crossOrigin = "anonymous";
+    usdcImg.src = "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/32/color/usdc.png";
 
     let gameActive = false;
     let score = 0;
@@ -153,6 +156,7 @@
     function closeAll() { 
         document.querySelectorAll('.modal').forEach(m => m.style.display='none'); 
         document.getElementById('overlay').style.display='none'; 
+        gameActive = false;
     }
 
     function startDemo() {
@@ -168,47 +172,60 @@
         requestAnimationFrame(gameLoop);
     }
 
-    window.addEventListener('keydown', (e) => { if(e.code === 'Space' && dino.grounded) { dino.dy = dino.jump; dino.grounded = false; } });
-    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); if(dino.grounded) { dino.dy = dino.jump; dino.grounded = false; } });
+    // Input Control
+    window.addEventListener('keydown', (e) => { if(e.code === 'Space' && dino.grounded && gameActive) { dino.dy = dino.jump; dino.grounded = false; } });
+    canvas.addEventListener('pointerdown', (e) => { if(dino.grounded && gameActive) { dino.dy = dino.jump; dino.grounded = false; } });
 
     function gameLoop() {
         if(!gameActive) return;
-        ctx.clearRect(0,0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         // Sky & Ground
         ctx.fillStyle = "#87CEEB"; ctx.fillRect(0,0, canvas.width, 260);
         ctx.fillStyle = "#4CAF50"; ctx.fillRect(0, 260, canvas.width, 40);
 
-        // Dino Physics
+        // Dino Logic
         dino.dy += dino.gravity;
         dino.y += dino.dy;
         if(dino.y > 200) { dino.y = 200; dino.dy = 0; dino.grounded = true; }
-        ctx.drawImage(dinoImg, dino.x, dino.y, dino.w, dino.h);
+        
+        // Draw Dino (Image check)
+        if(dinoImg.complete) {
+            ctx.drawImage(dinoImg, dino.x, dino.y, dino.w, dino.h);
+        } else {
+            ctx.fillStyle = "brown"; ctx.fillRect(dino.x, dino.y, dino.w, dino.h);
+        }
 
-        // Obstacles (Logic: 3 successful jumps/passes = 0.01 USDC)
-        if(gameFrame % 100 === 0) { obstacles.push({ x: canvas.width, y: 210, w: 45, h: 45 }); }
+        // Obstacles Spawn
+        if(gameFrame % 120 === 0) { obstacles.push({ x: canvas.width, y: 210, w: 45, h: 45 }); }
         
         obstacles.forEach((obs, index) => {
-            obs.x -= 7;
-            ctx.drawImage(usdcImg, obs.x, obs.y, obs.w, obs.h);
+            obs.x -= 6; // Move speed
             
-            // Precise Collision
-            if(dino.x < obs.x + obs.w - 15 && dino.x + dino.w - 15 > obs.x && dino.y < obs.y + obs.h - 15 && dino.y + dino.h - 15 > obs.y) {
+            if(usdcImg.complete) {
+                ctx.drawImage(usdcImg, obs.x, obs.y, obs.w, obs.h);
+            } else {
+                ctx.fillStyle = "blue"; ctx.beginPath(); ctx.arc(obs.x+22, obs.y+22, 20, 0, Math.PI*2); ctx.fill();
+            }
+            
+            // Collision
+            if(dino.x < obs.x + obs.w - 10 && dino.x + dino.w - 10 > obs.x && dino.y < obs.y + obs.h - 10 && dino.y + dino.h - 10 > obs.y) {
                 endGame();
             }
-            // Score Update
+            
+            // Scoring
             if(obs.x + obs.w < 0) { 
                 obstacles.splice(index, 1); 
                 score++; 
-                if(score % 3 === 0) { earnedUsdc += 0.01; } // 3 Jumps = 0.01 USDC
+                if(score % 3 === 0) { earnedUsdc += 0.01; }
             }
         });
 
-        // UI Text
+        // UI Display
         ctx.fillStyle = "#000";
         ctx.font = "24px VT323";
         ctx.fillText(`EARNED: $${earnedUsdc.toFixed(2)} USDC`, 20, 40);
-        ctx.fillText(`OBSTACLES PASSED: ${score}`, 20, 70);
+        ctx.fillText(`JUMPS: ${score}`, 20, 70);
 
         gameFrame++;
         requestAnimationFrame(gameLoop);
